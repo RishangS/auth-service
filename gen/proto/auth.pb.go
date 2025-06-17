@@ -286,7 +286,7 @@ const file_proto_auth_proto_rawDesc = "" +
 	"\vAuthService\x120\n" +
 	"\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\x128\n" +
 	"\vVerifyToken\x12\x13.auth.VerifyRequest\x1a\x14.auth.VerifyResponse\x129\n" +
-	"\fRefreshToken\x12\x14.auth.RefreshRequest\x1a\x13.auth.LoginResponseB-Z+github.com/RishangS/auth-service/proto;authb\x06proto3"
+	"\fRefreshToken\x12\x14.auth.RefreshRequest\x1a\x13.auth.LoginResponseB\x10Z\x0egen/proto;authb\x06proto3"
 
 var (
 	file_proto_auth_proto_rawDescOnce sync.Once
