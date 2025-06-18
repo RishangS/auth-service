@@ -168,13 +168,13 @@ func (r *UserRepository) GetUserByID(ctx context.Context, id int) (*User, error)
 }
 
 // CreateMessage inserts a new message into the database
-func (r *UserRepository) CreateMessage(senderID, recipientID int, content string) (int, error) {
+func (r *UserRepository) CreateMessage(sender, recipient, content string) (int, error) {
 	var messageID int
 	err := r.db.QueryRow(
 		`INSERT INTO messages (sender_id, recipient_id, content) 
-		VALUES ($1, $2, $3) 
+		VALUES ((SELECT id FROM users WHERE username = $1), (SELECT id FROM users WHERE username = $2), $3) 
 		RETURNING id`,
-		senderID, recipientID, content,
+		sender, recipient, content,
 	).Scan(&messageID)
 
 	if err != nil {
