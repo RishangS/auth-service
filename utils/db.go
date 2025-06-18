@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/lib/pq"
@@ -24,7 +26,34 @@ type UserRepository struct {
 	db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) *UserRepository {
+func NewUserRepository() *UserRepository {
+	user := "guest"
+	password := "guest"
+	dbname := "messanger"
+	host := "localhost"
+	port := "5432"
+
+	// Standard connection string format
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		user, password, host, port, dbname)
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	db.SetMaxOpenConns(10) // Tune this based on DB config
+	db.SetMaxIdleConns(5)
+
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Error pinging the database: %v", err)
+	}
+
+	// Test connection
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Error opening database connection: %v", err)
+	}
+
+	log.Println("Successfully connected to the PostgreSQL database!")
+
 	return &UserRepository{db: db}
 }
 
