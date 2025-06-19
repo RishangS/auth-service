@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/lib/pq"
@@ -37,11 +38,11 @@ type UserRepository struct {
 }
 
 func NewDBService() *UserRepository {
-	user := "guest"
-	password := "guest"
-	dbname := "messanger"
-	host := "localhost"
-	port := "5432"
+	user := getEnv("DB_USER", "guest")
+	password := getEnv("DB_PASSWORD", "guest")
+	dbname := getEnv("DB_NAME", "messanger")
+	host := getEnv("DB_HOST", "postgres")
+	port := getEnv("DB_PORT", "5432")
 
 	// Standard connection string format
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
@@ -65,6 +66,14 @@ func NewDBService() *UserRepository {
 	log.Println("Successfully connected to the PostgreSQL database!")
 
 	return &UserRepository{db: db}
+}
+
+// getEnv gets an environment variable or returns a default value
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
 }
 
 // CreateUser creates a new user with hashed password
