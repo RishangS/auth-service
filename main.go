@@ -5,10 +5,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
 	auth "github.com/RishangS/auth-service/gen/proto"
 	"github.com/RishangS/auth-service/handler"
@@ -60,41 +56,22 @@ func main() {
 		log.Fatalf("failed to register gateway: %v", err)
 	}
 
+	// Add health check endpoint to gwMux
+	gwMux.HandlePath("GET", "/health", func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+
 	// Create HTTP server
 	httpServer := &http.Server{
 		Addr:    ":" + httpPort,
 		Handler: gwMux,
 	}
 
-	// Add health check endpoint
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
-	})
-
 	// Start HTTP server
-	go func() {
-		log.Printf("HTTP server listening on :%s", httpPort)
-		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("failed to serve: %v", err)
-		}
-	}()
-
-	// Graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Println("Shutting down servers...")
-
-	// Shutdown gRPC server
-	grpcServer.GracefulStop()
-
-	// Shutdown HTTP server with timeout
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer shutdownCancel()
-	if err := httpServer.Shutdown(shutdownCtx); err != nil {
-		log.Printf("HTTP server forced to shutdown: %v", err)
+	log.Printf("HTTP server listening on :%s", httpPort)
+	if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("failed to serve: %v", err)
 	}
 
-	log.Println("Servers exited properly")
 }

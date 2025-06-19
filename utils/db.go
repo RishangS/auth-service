@@ -47,6 +47,7 @@ func NewDBService() *UserRepository {
 	// Standard connection string format
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		user, password, host, port, dbname)
+	fmt.Println("\n-------->", connStr)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
